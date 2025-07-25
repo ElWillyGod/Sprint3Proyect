@@ -21,13 +21,15 @@ igual estoy pensando como hacer consultas descentralizadas, o sea una sola consu
 V2
 
 Centrarse en el escalado horizontal y ver que tanto se puede hacer con vitess y MySQL.
-Podre hacer que vitess se conecte a otros vitess??? (cluster de vitess, parece que si)
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-prometheus para monitorear el rendimiento de las consultas y la base de datos. 
 
-una red de servidores no centralizados que son gestionados por vitess, cada servidor tiene sus propias base de datos y vitess se encarga de gestionar las conexiones y consultas de manera eficiente.
-Seguramente implemente prometheus para monitorear el rendimiento de las BD's y las consultas
+Prometheus para monitorear el rendimiento de las consultas y la base de datos.
 
-Me estoy enfocando demasiado en la arquitectura de las bases de datos y no tanto en la eficiencia de las mismas
+Una red de servidores no centralizados que son gestionados por vitess, cada servidor tiene sus propias base de datos y vitess se encarga de gestionar las conexiones y consultas de manera eficiente.
+Podre hacer que vitess se conecte a otros vitess??? (cluster de vitess, parece que si)
+Seguramente implemente Prometheus para monitorear el rendimiento de las BD's y las consultas
+
+Me estoy enfocando demasiado en la arquitectura de las bases de datos y no tanto en la eficiencia de las mismas.
