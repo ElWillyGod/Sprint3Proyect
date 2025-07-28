@@ -1,12 +1,32 @@
 version: '3.8'
 
 services:
+  # Aplicación principal
+  app:
+    build: .
+    container_name: products-app
+    ports:
+      - "8081:8080"
+    environment:
+      - INSTANCE_ID=main-app
+      - DB_HOST=db
+      - REDIS_HOST=cache
+    depends_on:
+      - cache
+      - db
+    networks:
+      - app-network
+
+  # Cache compartido
   cache:
     image: redis:7
     container_name: cache
     ports:
       - "6379:6379"
+    networks:
+      - app-network
 
+  # Base de datos compartida
   db:
     image: postgres:15
     container_name: db
@@ -19,6 +39,12 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
+    networks:
+      - app-network
 
 volumes:
   pgdata:
+
+networks:
+  app-network:
+    driver: bridge
