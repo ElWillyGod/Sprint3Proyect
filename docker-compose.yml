@@ -17,9 +17,9 @@ services:
     networks:
       - app-network
 
-  # Cache compartido
+  # Cache compartido (Valkey - fork open-source de Redis)
   cache:
-    image: redis:7
+    image: valkey/valkey:7
     container_name: cache
     ports:
       - "6379:6379"

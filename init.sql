@@ -1,10 +1,8 @@
-CREATE TABLE products (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    category TEXT NOT NULL,
-    price NUMERIC NOT NULL,
+CREATE TABLE products (id SERIAL PRIMARY KEY, name TEXT NOT NULL,
+    category TEXT NOT NULL,price NUMERIC NOT NULL,
     stock INTEGER NOT NULL CHECK (stock >= 0)
 );
+
 INSERT INTO products (name, category, price, stock) VALUES
 ('Laptop Lenovo', 'Electrónica', 800, 10),
 ('Batería Externa', 'Accesorios', 40, 25),
@@ -116,12 +114,36 @@ INSERT INTO products (name, category, price, stock) VALUES
 ('Detector Humo Smart', 'Hogar', 75, 25),
 ('Cerradura Digital', 'Hogar', 220, 8);
 
--- Índice compuesto: category + price
+-- Habilitar extensión para trigrams PRIMERO (antes de los índices)
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE INDEX idx_category_price ON products(category, price);
 
--- Índices para búsquedas de texto
 CREATE INDEX idx_name_text ON products USING gin(to_tsvector('spanish', name));
 CREATE INDEX idx_name_trigram ON products USING gin(name gin_trgm_ops);
 
--- Habilitar extensión para trigrams (mejora ILIKE)
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE OR REPLACE FUNCTION notify_product_update()
+RETURNS TRIGGER AS $$
+BEGIN
+    PERFORM pg_notify('product_updates', 
+        json_build_object(
+            'id', NEW.id,
+            'name', NEW.name,
+            'category', NEW.category,
+            'price', NEW.price,
+            'stock', NEW.stock
+        )::text
+    );
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS product_stock_change_trigger ON products;
+
+CREATE TRIGGER product_stock_change_trigger
+    AFTER UPDATE OF stock ON products
+    FOR EACH ROW
+    WHEN (OLD.stock IS DISTINCT FROM NEW.stock) -- Al pedo
+    EXECUTE FUNCTION notify_product_update(); 
